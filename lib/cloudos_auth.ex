@@ -2,16 +2,16 @@ require Logger
 
 defmodule CloudosAuth.Client do
 
-  @spec start_link() :: {:ok, pid} | {:error, String.t()}
-  def start_link() do
-    create()
+  @spec start_link(String.t(), String.t(), String.t()) :: {:ok, pid} | {:error, String.t()}
+  def start_link(url, client_id, client_secret) do
+    create(url, client_id, client_secret)
   end
 
-  @spec create() :: {:ok, pid} | {:error, String.t()} 
-  def create() do
-    case Agent.start_link(fn -> %{} end) do
+  @spec create(String.t(), String.t(), String.t()) :: {:ok, pid} | {:error, String.t()} 
+  def create(url, client_id, client_secret) do
+    case Agent.start_link(fn -> %{:url => url, :client_id => client_id, :client_secret => client_secret} end) do
       {:ok, pid} -> 
-        get_token(true)
+        get_token(pid, true)
         {:ok, pid}
       {:error, reason} -> {:error, reason}
     end
@@ -31,7 +31,7 @@ defmodule CloudosAuth.Client do
     cond do
       options[:auth_token] != nil && !force_refresh -> options[:auth_token]
       true ->
-        options = Map.put(options, :auth_token, get_token_raw())
+        options = Map.put(options, :auth_token, get_token_raw(options[:url], options[:client_id], options[:client_secret]))
         Agent.update(pid, fn _ -> options end)
         options[:auth_token]
     end
@@ -42,14 +42,14 @@ defmodule CloudosAuth.Client do
   ## Return values
   String
   """
-  @spec get_token_raw() :: String.t()
-  def get_token_raw() do
+  @spec get_token_raw(String.t(), String.t(), String.t()) :: String.t()
+  def get_token_raw(url, client_id, client_secret) do
     body = '#{JSON.encode!(%{
       grant_type: "client_credentials", 
-      client_id: Application.get_env(:cloudos_auth, :client_id), 
-      client_secret: Application.get_env(:cloudos_auth, :client_secret)
+      client_id: client_id, 
+      client_secret: client_secret
     })}'
-    case :httpc.request(:post, {'#{Application.get_env(:cloudos_auth, :login_url)}', [{'Content-Type', 'application/json'}, {'Accept', 'application/json'}], 'application/json', body}, [], []) do
+    case :httpc.request(:post, {url, [{'Content-Type', 'application/json'}, {'Accept', 'application/json'}], 'application/json', body}, [], []) do
       {:ok, {{_,return_code, _}, _, body}} ->
         case return_code do
           200 -> 
