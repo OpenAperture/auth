@@ -9,7 +9,7 @@ defmodule CloudosAuth.Client do
 
   @spec create() :: {:ok, pid} | {:error, String.t()} 
   def create() do
-    case Agent.start_link(fn -> %{} end, name: __MODULE__) do
+    case Agent.start_link(fn -> %{} end) do
       {:ok, pid} -> 
         get_token(true)
         {:ok, pid}
@@ -24,15 +24,15 @@ defmodule CloudosAuth.Client do
   ## Return values
   String
   """
-  @spec get_token(term) :: String.t()
-  def get_token(force_refresh \\ false) do
-    options = Agent.get(__MODULE__, fn options -> options end)
+  @spec get_token(pid, term) :: String.t()
+  def get_token(pid, force_refresh \\ false) do
+    options = Agent.get(pid, fn options -> options end)
 
     cond do
       options[:auth_token] != nil && !force_refresh -> options[:auth_token]
       true ->
         options = Map.put(options, :auth_token, get_token_raw())
-        Agent.update(__MODULE__, fn _ -> options end)
+        Agent.update(pid, fn _ -> options end)
         options[:auth_token]
     end
   end
