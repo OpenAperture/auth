@@ -1,6 +1,6 @@
 require Logger
 
-defmodule CloudosAuth.Client do
+defmodule CloudosAuth do
 
   @spec start_link(String.t(), String.t(), String.t()) :: {:ok, pid} | {:error, String.t()}
   def start_link(url, client_id, client_secret) do
@@ -76,4 +76,45 @@ defmodule CloudosAuth.Client do
   def get_auth_header(force_refresh \\ false) do
     "OAuth access_token=#{get_token(force_refresh)}"
   end
+
+  @doc """
+  Method to validate a Google OAuth authentication header
+  ## Options
+  The `auth_header` option defines the auth header
+  ## Return values
+  Boolean
+  """
+ @spec validate_header(pid, String.t()) :: :ok | :error
+  def validate_header(pid, auth_header) do
+    if (!String.starts_with?(auth_header, "OAuth ")) do
+      false
+    else
+      options = Agent.get(pid, fn options -> options end)
+
+      access_token = to_string(tl(String.split(auth_header, "OAuth ")))
+
+      url = "#{options[:url]}/info?#{access_token}"
+      Logger.debug("Executing OAuth call:  #{url}")
+      try do
+        case :httpc.request(:get, {url, [{'Accept', 'application/json'}]}, [], []) do
+          {:ok, {{_,return_code, _}, _, body}} ->
+            case return_code do
+              200 -> 
+                Logger.debug("Received response from OAuth:  #{inspect body}")
+                userinfo_json = JSON.decode!("#{body}")
+                Logger.debug("Parsed OAuth response:  #{inspect userinfo_json}")
+                cond do
+                  userinfo_json["expires_in_seconds"] == nil || userinfo_json["expires_in_seconds"] <= 0 -> false
+                  true -> true
+                end
+              _   -> false
+            end
+          {:error, {failure_reason, _}} -> false
+        end
+      rescue e in _ ->
+        Logger.error("An error occurred calling OAuth:  #{inspect e}")
+        false 
+      end
+    end
+  end 
 end
