@@ -21,15 +21,13 @@ defmodule CloudosAuthTest do
 
   test "auth validate success" do
   	use_cassette "auth-validate-success", custom: true do
-  		{:ok, pid} = CloudosAuth.Server.start_link("https://myurl.co/oauth/token")
-  		assert true == CloudosAuth.Server.validate_token(pid, "12345")
+  		assert true == CloudosAuth.Server.validate_token("https://myurl.co/oauth/token", "12345")
   	end
   end
 
   test "auth validate failure" do
   	use_cassette "auth-validate-failure", custom: true do
-  		{:ok, pid} = CloudosAuth.Server.start_link("https://myurl.co/oauth/token")
-  		assert false == CloudosAuth.Server.validate_token(pid, "12345")
+  		assert false == CloudosAuth.Server.validate_token("https://myurl.co/oauth/token", "12345")
   	end
   end
 end
