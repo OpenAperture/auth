@@ -25,6 +25,8 @@ defmodule CloudosAuth.Mixfile do
   #
   # Type `mix help deps` for more examples and options
   defp deps do
-    []
+    [{:json, "0.3.0"},
+      {:exvcr, "~>0.3.3", only: :test},
+     {:meck, "0.8.2", only: :test}]
   end
 end

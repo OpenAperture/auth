@@ -1,0 +1,13 @@
+[
+  {
+    "request": {
+      "method": "get",
+      "url": "https://myurl.co/oauth/token"
+    },
+    "response": {
+      "status_code": ["HTTP/1.1", 200, "OK"],
+      "type": "ok",
+      "body": "{\"token\":\"d4110b1ab6afc7e5cdf5881718385376f11dafeb3a1126215e5ed5b5b01958db\",\"expires_in_seconds\":6808}"
+    }
+  }
+]
