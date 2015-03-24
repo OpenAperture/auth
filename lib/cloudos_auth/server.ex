@@ -3,16 +3,6 @@ require Logger
 defmodule CloudosAuth.Server do
 
 
-  @spec start_link(String.t()) :: {:ok, pid} | {:error, String.t()}
-  def start_link(validate_url) do
-    create(validate_url)
-  end
-
-  @spec create(String.t()) :: {:ok, pid} | {:error, String.t()} 
-  def create(validate_url) do
-    Agent.start_link(fn -> %{:validate_url => validate_url} end)
-  end
-
   @doc """
   Method to validate an OAuth token
   ## Options
@@ -20,10 +10,9 @@ defmodule CloudosAuth.Server do
   ## Return values
   Boolean
   """
- @spec validate_token(pid, String.t()) :: :ok | :error
-  def validate_token(pid, token) do
-  	options = Agent.get(pid, fn options -> options end)
-   	url = "#{options[:validate_url]}?#{token}"
+ @spec validate_token(String.t, String.t()) :: :ok | :error
+ def validate_token(validate_url, token) do
+  	url = "#{validate_url}?#{token}"
 		Logger.debug("Executing OAuth call:  #{url}")
 		try do
 	    case :httpc.request(:get, {url, [{'Accept', 'application/json'}]}, [], []) do
