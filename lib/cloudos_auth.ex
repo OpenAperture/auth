@@ -1,13 +1,22 @@
 defmodule CloudosAuth do
+  use Application
 
-	@spec create_client(String.t(), String.t(), String.t()) :: {:ok, pid} | {:error, String.t()}
-	def create_client(url, client_id, client_secret) do
-		CloudosAuth.Client.start_link(url, client_id, client_secret)
-	end
+  # See http://elixir-lang.org/docs/stable/elixir/Application.html
+  # for more information on OTP Applications
+	def start(_type, _args) do
+    import Supervisor.Spec, warn: false
 
-	@spec create_server(String.t()) :: {:ok, pid} | {:error, String.t()}
-	def create_server(validate_url) do
-		CloudosAuth.Server.start_link(validate_url)
-	end
+    children = [
+      # Define workers and child supervisors to be supervised
+      # worker(PswAuthex.Worker, [arg1, arg2, arg3])
+      worker(CloudosAuth.Client.Store, []),
+      worker(CloudosAuth.Server.Store, [])
+    ]
+
+    # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
+    # for other strategies and supported options
+    opts = [strategy: :one_for_one, name: CloudosAuth.Supervisor]
+    Supervisor.start_link(children, opts)
+  end
 
 end
