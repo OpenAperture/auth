@@ -37,18 +37,15 @@ defmodule CloudosAuth.Client do
     })}'
     start_time = :os.timestamp()
     case :httpc.request(:post, {url, [{'Content-Type', 'application/json'}, {'Accept', 'application/json'}], 'application/json', body}, [], []) do
+      {:ok, {{_,200, _}, _, body}} ->
+        Logger.debug("Retrieved OAuth Token")
+        token = JSON.decode!("#{body}")["access_token"]
+        expiration = String.to_integer(JSON.decode!("#{body}")["expires_in"])
+        timestamp = Util.timestamp_add_seconds(start_time, expiration)
+        {:ok, %CloudosAuth.Token{token: token, expires_at: timestamp}}
       {:ok, {{_,return_code, _}, _, body}} ->
-        case return_code do
-          200 -> 
-            Logger.debug("Retrieved OAuth Token")
-            token = JSON.decode!("#{body}")["access_token"]
-            expiration = String.to_integer(JSON.decode!("#{body}")["expires_in"])
-            timestamp = Util.timestamp_add_seconds(start_time, expiration)
-            {:ok, %CloudosAuth.Token{token: token, expires_at: timestamp}}
-          _   -> 
-            Logger.error("OAuth returned status #{return_code} while authenticating:  #{inspect body}")
-            {:error, "OAuth returned status #{return_code} while authenticating:  #{inspect body}"}
-        end
+        Logger.error("OAuth returned status #{return_code} while authenticating:  #{inspect body}")
+        {:error, "OAuth returned status #{return_code} while authenticating:  #{inspect body}"}
       {:error, {failure_reason, _}} ->
         Logger.error("OAuth responded with an error while authenticating:  (#{inspect failure_reason})")
         {:error, "OAuth responded with an error while authenticating:  (#{inspect failure_reason})"}
