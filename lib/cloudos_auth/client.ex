@@ -13,14 +13,14 @@ defmodule CloudosAuth.Client do
   """
   @spec get_token(String.t(), String.t(), String.t()) :: String.t()
   def get_token(url, client_id, client_secret, force_refresh \\ false) do
-    stored_token = Store.get(CloudosAuth.Client.Store, url, client_id)
+    stored_token = Store.get(url, client_id)
 
     cond do
       stored_token != nil && !force_refresh && Util.valid_token?(stored_token)-> 
         stored_token.token
       true ->
         {:ok, token} = get_token_raw(url, client_id, client_secret)
-        Store.put(CloudosAuth.Client.Store, url, client_id, token)
+        Store.put(url, client_id, token)
         token.token
     end
   end

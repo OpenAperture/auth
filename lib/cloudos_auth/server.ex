@@ -12,10 +12,9 @@ defmodule CloudosAuth.Server do
   ## Return values
   Boolean
   """
- @spec validate_token(String.t, String.t()) :: :ok | :error
- def validate_token(validate_url, token) do
-    stored_token = Store.get(CloudosAuth.Server.Store, validate_url, token)
-
+ @spec validate_token?(String.t, String.t()) :: true | false
+ def validate_token?(validate_url, token) do
+    stored_token = Store.get(validate_url, token)
     cond do
       stored_token != nil && Util.valid_token?(stored_token)-> 
         true
@@ -33,9 +32,9 @@ defmodule CloudosAuth.Server do
                   Logger.debug("Parsed OAuth response:  #{inspect userinfo_json}")
                   cond do
                     userinfo_json["expires_in_seconds"] == nil || userinfo_json["expires_in_seconds"] <= 0 -> false
-                    true -> 
+                    true ->
                       timestamp = Util.timestamp_add_seconds(start_time, userinfo_json["expires_in_seconds"])                      
-                      Store.put(CloudosAuth.Server.Store, validate_url, token, %CloudosAuth.Token{token: token, expires_at: timestamp})
+                      Store.put(validate_url, token, %CloudosAuth.Token{token: token, expires_at: timestamp})
                       true
                   end
                 _   -> false
