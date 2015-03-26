@@ -27,7 +27,8 @@ defmodule CloudosAuthTest do
 
   test "auth validate failure" do
   	use_cassette "auth-validate-failure", custom: true do
-  		assert false == CloudosAuth.Server.validate_token?("https://myurl.co/oauth/token", "12345")
+  		CloudosAuth.Server.Store.remove("https://myurl.co/oauth/token", "12345")
+      assert false == CloudosAuth.Server.validate_token?("https://myurl.co/oauth/token", "12345")
   	end
   end
 end

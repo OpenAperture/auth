@@ -51,16 +51,4 @@ defmodule CloudosAuth.Client do
         {:error, "OAuth responded with an error while authenticating:  (#{inspect failure_reason})"}
     end
   end
-
-  @doc """
-  Method to retrieve the authentication header
-  ## Options
-  The `force_refresh` option will force a retrieval of the auth token
-  ## Return values
-  String
-  """
-  @spec get_auth_header(String.t(), String.t(), String.t(), term) :: String.t()
-  def get_auth_header(url, client_id, client_secret, force_refresh \\ false) do
-    "OAuth access_token=#{get_token(url, client_id, client_secret, force_refresh)}"
-  end
 end
