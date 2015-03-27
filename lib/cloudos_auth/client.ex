@@ -30,7 +30,7 @@ defmodule CloudosAuth.Client do
   """
   @spec get_token_raw(String.t(), String.t(), String.t()) :: {:ok, CloudosAuth.Token} | {:error, String.t()}
   def get_token_raw(url, client_id, client_secret) do
-    body = '#{JSON.encode!(%{
+    body = '#{Poison.encode!(%{
       grant_type: "client_credentials", 
       client_id: client_id, 
       client_secret: client_secret
@@ -39,8 +39,8 @@ defmodule CloudosAuth.Client do
     case :httpc.request(:post, {url, [{'Content-Type', 'application/json'}, {'Accept', 'application/json'}], 'application/json', body}, [], []) do
       {:ok, {{_,200, _}, _, body}} ->
         Logger.debug("Retrieved OAuth Token")
-        token = JSON.decode!("#{body}")["access_token"]
-        expiration = String.to_integer(JSON.decode!("#{body}")["expires_in"])
+        token = Poison.decode!("#{body}")["access_token"]
+        expiration = String.to_integer(Poison.decode!("#{body}")["expires_in"])
         timestamp = Util.timestamp_add_seconds(start_time, expiration)
         {:ok, %CloudosAuth.Token{token: token, expires_at: timestamp}}
       {:ok, {{_,return_code, _}, _, body}} ->

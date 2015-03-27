@@ -28,7 +28,7 @@ defmodule CloudosAuth.Server do
               case return_code do
                 200 -> 
                   Logger.debug("Received response from OAuth:  #{inspect body}")
-                  userinfo_json = JSON.decode!("#{body}")
+                  userinfo_json = Poison.decode!("#{body}")
                   Logger.debug("Parsed OAuth response:  #{inspect userinfo_json}")
                   cond do
                     userinfo_json["expires_in_seconds"] == nil || userinfo_json["expires_in_seconds"] <= 0 ->
