@@ -21,7 +21,7 @@ defmodule CloudosAuth.Server do
       true ->
         url = "#{validate_url}?#{token}"
         Logger.debug("Executing OAuth call:  #{url}")
-        #try do
+        try do
           start_time = :os.timestamp()
           case :httpc.request(:get, {'#{url}', [{'Accept', 'application/json'}]}, [], []) do
             {:ok, {{_,return_code, _}, _, body}} ->
@@ -47,10 +47,10 @@ defmodule CloudosAuth.Server do
               Logger.debug("auth token check failed: #{failure_reason}")
               false
           end
-        #rescue e in _ ->
-        #  Logger.error("An error occurred calling OAuth:  #{inspect e}")
-        #  false 
-        #end
+        rescue e in _ ->
+          Logger.error("An error occurred calling OAuth:  #{inspect e}")
+          false 
+        end
     end    
   end
 end
