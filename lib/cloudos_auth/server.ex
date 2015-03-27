@@ -31,15 +31,21 @@ defmodule CloudosAuth.Server do
                   userinfo_json = JSON.decode!("#{body}")
                   Logger.debug("Parsed OAuth response:  #{inspect userinfo_json}")
                   cond do
-                    userinfo_json["expires_in_seconds"] == nil || userinfo_json["expires_in_seconds"] <= 0 -> false
+                    userinfo_json["expires_in_seconds"] == nil || userinfo_json["expires_in_seconds"] <= 0 ->
+                      Logger.debug("auth token expired")
+                      false
                     true ->
                       timestamp = Util.timestamp_add_seconds(start_time, userinfo_json["expires_in_seconds"])                      
                       Store.put(validate_url, token, %CloudosAuth.Token{token: token, expires_at: timestamp})
                       true
                   end
-                _   -> false
+                _   ->
+                    Logger.debug("auth token check returned #{return_code}: #{inspect body}")
+                    false
               end
-            {:error, {_failure_reason, _}} -> false
+            {:error, {failure_reason, _}} -> 
+              Logger.debug("auth token check failed: #{failure_reason}")
+              false
           end
         #rescue e in _ ->
         #  Logger.error("An error occurred calling OAuth:  #{inspect e}")
