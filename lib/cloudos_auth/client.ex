@@ -36,7 +36,7 @@ defmodule CloudosAuth.Client do
       client_secret: client_secret
     })}'
     start_time = :os.timestamp()
-    case :httpc.request(:post, {url, [{'Content-Type', 'application/json'}, {'Accept', 'application/json'}], 'application/json', body}, [], []) do
+    case :httpc.request(:post, {'#{url}', [{'Content-Type', 'application/json'}, {'Accept', 'application/json'}], 'application/json', body}, [], []) do
       {:ok, {{_,200, _}, _, body}} ->
         Logger.debug("Retrieved OAuth Token")
         token = JSON.decode!("#{body}")["access_token"]
