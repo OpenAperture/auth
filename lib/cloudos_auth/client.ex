@@ -40,7 +40,7 @@ defmodule CloudosAuth.Client do
       {:ok, {{_,200, _}, _, body}} ->
         Logger.debug("Retrieved OAuth Token")
         token = Poison.decode!("#{body}")["access_token"]
-        expiration = String.to_integer(Poison.decode!("#{body}")["expires_in"])
+        expiration = Poison.decode!("#{body}")["expires_in"]
         timestamp = Util.timestamp_add_seconds(start_time, expiration)
         {:ok, %CloudosAuth.Token{token: token, expires_at: timestamp}}
       {:ok, {{_,return_code, _}, _, body}} ->
