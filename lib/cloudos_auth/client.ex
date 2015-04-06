@@ -19,9 +19,14 @@ defmodule CloudosAuth.Client do
       stored_token != nil && !force_refresh && Util.valid_token?(stored_token)-> 
         stored_token.token
       true ->
-        {:ok, token} = get_token_raw(url, client_id, client_secret)
-        Store.put(url, client_id, token)
-        token.token
+        case get_token_raw(url, client_id, client_secret) do
+          {:ok, token} ->
+            Store.put(url, client_id, token)
+            token.token
+          {:error, reason} ->
+            Logger.error(reason)
+            ""
+        end
     end
   end
 

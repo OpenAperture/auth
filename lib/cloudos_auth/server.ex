@@ -24,27 +24,24 @@ defmodule CloudosAuth.Server do
         try do
           start_time = :os.timestamp()
           case :httpc.request(:get, {'#{url}', [{'Accept', 'application/json'}]}, [], []) do
-            {:ok, {{_,return_code, _}, _, body}} ->
-              case return_code do
-                200 -> 
-                  Logger.debug("Received response from OAuth:  #{inspect body}")
-                  userinfo_json = Poison.decode!("#{body}")
-                  Logger.debug("Parsed OAuth response:  #{inspect userinfo_json}")
-                  cond do
-                    userinfo_json["expires_in_seconds"] == nil || userinfo_json["expires_in_seconds"] <= 0 ->
-                      Logger.debug("auth token expired")
-                      false
-                    true ->
-                      timestamp = Util.timestamp_add_seconds(start_time, userinfo_json["expires_in_seconds"])                      
-                      Store.put(validate_url, token, %CloudosAuth.Token{token: token, expires_at: timestamp})
-                      true
-                  end
-                _   ->
-                    Logger.debug("auth token check returned #{return_code}: #{inspect body}")
-                    false
+            {:ok, {{_,200, _}, _, body}} ->
+              Logger.debug("Received response from OAuth:  #{inspect body}")
+              userinfo_json = Poison.decode!("#{body}")
+              Logger.debug("Parsed OAuth response:  #{inspect userinfo_json}")
+              cond do
+                userinfo_json["expires_in_seconds"] == nil || userinfo_json["expires_in_seconds"] <= 0 ->
+                  Logger.debug("auth token expired")
+                  false
+                true ->
+                  timestamp = Util.timestamp_add_seconds(start_time, userinfo_json["expires_in_seconds"])                      
+                  Store.put(validate_url, token, %CloudosAuth.Token{token: token, expires_at: timestamp})
+                  true
               end
+            {:ok, {{_,return_code, _}, _, body}} ->
+              Logger.debug("auth token check returned #{return_code}: #{inspect body}")
+              false
             {:error, {failure_reason, _}} -> 
-              Logger.debug("auth token check failed: #{failure_reason}")
+              Logger.debug("auth token check failed: #{inspect failure_reason}")
               false
           end
         rescue e in _ ->
