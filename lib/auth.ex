@@ -1,4 +1,4 @@
-defmodule CloudosAuth do
+defmodule OpenAperture.Auth do
   use Application
 
   # See http://elixir-lang.org/docs/stable/elixir/Application.html
@@ -9,13 +9,13 @@ defmodule CloudosAuth do
     children = [
       # Define workers and child supervisors to be supervised
       # worker(PswAuthex.Worker, [arg1, arg2, arg3])
-      worker(CloudosAuth.Client.Store, []),
-      worker(CloudosAuth.Server.Store, [])
+      worker(OpenAperture.Auth.Client.Store, []),
+      worker(OpenAperture.Auth.Server.Store, [])
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
     # for other strategies and supported options
-    opts = [strategy: :one_for_one, name: CloudosAuth.Supervisor]
+    opts = [strategy: :one_for_one, name: OpenAperture.Auth.Supervisor]
     Supervisor.start_link(children, opts)
   end
 

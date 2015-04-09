@@ -1,8 +1,8 @@
-defmodule CloudosAuth.Mixfile do
+defmodule OpenAperture.Auth.Mixfile do
   use Mix.Project
 
   def project do
-    [app: :cloudos_auth,
+    [app: :openaperture_auth,
      version: "0.0.1",
      elixir: "~> 1.0",
      deps: deps]
@@ -12,7 +12,7 @@ defmodule CloudosAuth.Mixfile do
   #
   # Type `mix help compile.app` for more information
   def application do
-    [mod: {CloudosAuth, []},
+    [mod: {OpenAperture.Auth, []},
      applications: [:logger]]
   end
 

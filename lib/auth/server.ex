@@ -1,9 +1,9 @@
 require Logger
 
-defmodule CloudosAuth.Server do
+defmodule OpenAperture.Auth.Server do
 
-  alias CloudosAuth.Server.Store
-  alias CloudosAuth.Util
+  alias OpenAperture.Auth.Server.Store
+  alias OpenAperture.Auth.Util
 
   @doc """
   Method to validate an OAuth token
@@ -34,7 +34,7 @@ defmodule CloudosAuth.Server do
                   false
                 true ->
                   timestamp = Util.timestamp_add_seconds(start_time, userinfo_json["expires_in_seconds"])                      
-                  Store.put(validate_url, token, %CloudosAuth.Token{token: token, expires_at: timestamp})
+                  Store.put(validate_url, token, %OpenAperture.Auth.Token{token: token, expires_at: timestamp})
                   true
               end
             {:ok, {{_,return_code, _}, _, body}} ->

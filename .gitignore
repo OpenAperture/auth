@@ -3,4 +3,4 @@
 erl_crash.dump
 *.ez
 mix.lock
-cloudos_auth.sublime-workspace
+auth.sublime-workspace

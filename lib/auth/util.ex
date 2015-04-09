@@ -1,4 +1,4 @@
-defmodule CloudosAuth.Util do
+defmodule OpenAperture.Auth.Util do
 
   def timestamp_add_seconds(timestamp, seconds) do
     # preserve microseconds

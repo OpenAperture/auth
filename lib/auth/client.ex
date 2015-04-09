@@ -1,9 +1,9 @@
 require Logger
 
-defmodule CloudosAuth.Client do
+defmodule OpenAperture.Auth.Client do
 
-  alias CloudosAuth.Client.Store
-  alias CloudosAuth.Util
+  alias OpenAperture.Auth.Client.Store
+  alias OpenAperture.Auth.Util
   @doc """
   Method to retrieve the an authentication token from cache, if available
   ## Options
@@ -33,7 +33,7 @@ defmodule CloudosAuth.Client do
   @doc """
   Method to retrieve the an authentication token, directly from the provider
   """
-  @spec get_token_raw(String.t(), String.t(), String.t()) :: {:ok, CloudosAuth.Token} | {:error, String.t()}
+  @spec get_token_raw(String.t(), String.t(), String.t()) :: {:ok, OpenAperture.Auth.Token} | {:error, String.t()}
   def get_token_raw(url, client_id, client_secret) do
     body = '#{Poison.encode!(%{
       grant_type: "client_credentials", 
@@ -47,7 +47,7 @@ defmodule CloudosAuth.Client do
         token = Poison.decode!("#{body}")["access_token"]
         expiration = Poison.decode!("#{body}")["expires_in"]
         timestamp = Util.timestamp_add_seconds(start_time, expiration)
-        {:ok, %CloudosAuth.Token{token: token, expires_at: timestamp}}
+        {:ok, %OpenAperture.Auth.Token{token: token, expires_at: timestamp}}
       {:ok, {{_,return_code, _}, _, body}} ->
         Logger.error("OAuth returned status #{return_code} while authenticating:  #{inspect body}")
         {:error, "OAuth returned status #{return_code} while authenticating:  #{inspect body}"}
