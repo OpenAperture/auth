@@ -1,5 +1,3 @@
 OpenAperture.Auth
 ===========
-[![Build Status](https://semaphoreci.com/api/v1/projects/80bd72a5-bf9d-49c9-ad3e-7d63882c5bf4/378648/badge.png)](https://semaphoreci.com/perceptive/cloudos_auth)
-
-** TODO: Add description **
+[![Build Status](https://semaphoreci.com/api/v1/projects/1d6b87d6-af02-4cb2-a227-8bb8394e93e9/394694/badge.svg)](https://semaphoreci.com/perceptive/auth)
