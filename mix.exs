@@ -26,8 +26,11 @@ defmodule OpenAperture.Auth.Mixfile do
   #
   # Type `mix help deps` for more examples and options
   defp deps do
-    [{:poison, "~>1.3.1"},
-     {:exvcr, "~>0.3.3", only: :test},
-     {:meck, "0.8.2", only: :test}]
+    [
+      {:ex_doc, github: "elixir-lang/ex_doc", only: [:test]},
+      {:markdown, github: "devinus/markdown", only: [:test]},    
+      {:poison, "~>1.3.1"},
+      {:exvcr, "~>0.3.3", only: :test},
+      {:meck, "0.8.2", only: :test}]
   end
 end
