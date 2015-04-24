@@ -19,4 +19,10 @@ defmodule OpenAperture.Auth do
     Supervisor.start_link(children, opts)
   end
 
+  def get_token() do
+    OpenAperture.Auth.Client.get_token(Application.get_env(:openaperture_auth, :oauth_login_url),
+                                       Application.get_env(:openaperture_auth, :oauth_client_id),
+                                       Application.get_env(:openaperture_auth, :oauth_client_secret))
+  end
+
 end
