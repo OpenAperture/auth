@@ -15,6 +15,12 @@ use Mix.Config
 #       format: "$date $time [$level] $metadata$message\n",
 #       metadata: [:user_id]
 
+config :openaperture_auth,
+	oauth_login_url: System.get_env("OAUTH_LOGIN_URL"),
+	oauth_client_id: System.get_env("OAUTH_CLIENT_ID"),
+	oauth_client_secret: System.get_env("OAUTH_CLIENT_SECRET")
+
+
 # It is also possible to import configuration files, relative to this
 # directory. For example, you can emulate configuration per environment
 # by uncommenting the line below and defining dev.exs, test.exs and such.
