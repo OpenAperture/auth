@@ -8,7 +8,6 @@ defmodule OpenAperture.Auth do
 
     children = [
       # Define workers and child supervisors to be supervised
-      # worker(PswAuthex.Worker, [arg1, arg2, arg3])
       worker(OpenAperture.Auth.Client.Store, []),
       worker(OpenAperture.Auth.Server.Store, [])
     ]

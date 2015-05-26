@@ -16,6 +16,6 @@ defmodule OpenAperture.Auth.Client.Store do
   end
 
   defp create_key(part1, part2) do
-    part1 <> "::" <> part2
+    "#{part1}::#{part2}"
   end
 end
