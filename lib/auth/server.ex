@@ -23,7 +23,7 @@ defmodule OpenAperture.Auth.Server do
           Store.put(validate_url, token, %Token{token: token, expires_at: timestamp, user_info: user_info})
           true
         end
-      {:cached, user_info} ->
+      {:cached, _user_info} ->
         true
     end    
   end
