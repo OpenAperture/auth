@@ -4,16 +4,13 @@ defmodule OpenAperture.Auth.Server do
 
   alias OpenAperture.Auth.Server.Store
   alias OpenAperture.Auth.Util
+  alias OpenAperture.Auth.Token
 
   @doc """
-  Method to validate an OAuth token
-  ## Options
-  The `auth_header` option defines the auth header
-  ## Return values
-  Boolean
+  Checks if a provided OAuth access token is valid.
   """
- @spec validate_token?(String.t, String.t()) :: true | false
- def validate_token?(validate_url, token) do
+  @spec validate_token?(String.t, String.t) :: true | false
+  def validate_token?(validate_url, token) do
     stored_token = Store.get(validate_url, token)
     cond do
       stored_token != nil && Util.valid_token?(stored_token)-> 
@@ -21,33 +18,47 @@ defmodule OpenAperture.Auth.Server do
       true ->
         url = "#{validate_url}?#{token}"
         Logger.debug("Executing OAuth call:  #{url}")
-        try do
-          start_time = :os.timestamp()
-          case :httpc.request(:get, {'#{url}', [{'Accept', 'application/json'}]}, [], []) do
-            {:ok, {{_,200, _}, _, body}} ->
-              Logger.debug("Received response from OAuth:  #{inspect body}")
-              userinfo_json = Poison.decode!("#{body}")
-              Logger.debug("Parsed OAuth response:  #{inspect userinfo_json}")
-              cond do
-                userinfo_json["expires_in_seconds"] == nil || userinfo_json["expires_in_seconds"] <= 0 ->
-                  Logger.debug("auth token expired")
-                  false
-                true ->
-                  timestamp = Util.timestamp_add_seconds(start_time, userinfo_json["expires_in_seconds"])                      
-                  Store.put(validate_url, token, %OpenAperture.Auth.Token{token: token, expires_at: timestamp})
-                  true
-              end
-            {:ok, {{_,return_code, _}, _, body}} ->
-              Logger.debug("auth token check returned #{return_code}: #{inspect body}")
+        start_time = :os.timestamp()
+        case token_info(validate_url, token) do
+          nil -> false
+          user_info ->
+            if user_info["expires_in_seconds"] == nil || user_info["expires_in_seconds"] <= 0 do
+              Logger.debug("Auth token expired.")
               false
-            {:error, {failure_reason, _}} -> 
-              Logger.debug("auth token check failed: #{inspect failure_reason}")
-              false
-          end
-        rescue e in _ ->
-          Logger.error("An error occurred calling OAuth:  #{inspect e}")
-          false 
+            else
+              timestamp = Util.timestamp_add_seconds(start_time, user_info["expires_in_seconds"])
+              Store.put(validate_url, token, %Token{token: token, expires_at: timestamp})
+              true
+            end
         end
     end    
+  end
+
+  @doc """
+  Retrieves a token info body from the server.
+  """
+  @spec token_info(String.t, String.t) :: Map.t | nil
+  def token_info(validate_url, token) do
+    url = "#{validate_url}?#{token}"
+    try do
+      case :httpc.request(:get, {'#{url}', [{'Accept', 'application/json'}]}, [], []) do
+        {:ok, {{_, 200, _}, _, body}} ->
+          Logger.debug("Token info response: #{inspect body}")
+          user_info = Poison.decode!(body)
+          Logger.debug("Parsed token info response: #{inspect user_info}")
+
+          user_info
+        {:ok, {{_, status, _}, body}} ->
+          Logger.debug("Token info check returned with status: #{status}: #{inspect body}")
+          nil
+        {:error, {failure_reason, _}} ->
+          Logger.error("Token info check failed. #{inspect failure_reason}")
+          nil
+      end
+
+    rescue e in _ ->
+      Logger.error("An error occurred validating the OAuth token: #{inspect e}")
+      nil
+    end
   end
 end
