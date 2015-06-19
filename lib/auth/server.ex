@@ -39,13 +39,10 @@ defmodule OpenAperture.Auth.Server do
     else
       url = "#{validate_url}?#{token}"
       try do
-        Logger.debug("token_info url:  #{inspect url}")
         case :httpc.request(:get, {'#{url}', [{'Accept', 'application/json'}]}, [], []) do
           {:ok, {{_http_protocol, 200, _status_desc}, _headers, body}} ->
-            Logger.debug("Token info response: #{inspect body}")
+            Logger.debug("Token info is valid")
             user_info = Poison.decode!(body)
-            Logger.debug("Parsed token info response: #{inspect user_info}")
-
             {:new, user_info}
           {:ok, {{_http_protocol, status, _status_desc}, _headers, body}} ->
             Logger.debug("Token info check returned with status: #{status}: #{inspect body}")
