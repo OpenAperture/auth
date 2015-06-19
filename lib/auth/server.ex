@@ -40,20 +40,19 @@ defmodule OpenAperture.Auth.Server do
       url = "#{validate_url}?#{token}"
       try do
         case :httpc.request(:get, {'#{url}', [{'Accept', 'application/json'}]}, [], []) do
-          {:ok, {{_, 200, _}, _, body}} ->
+          {:ok, {{_http_protocol, 200, _status_desc}, _headers, body}} ->
             Logger.debug("Token info response: #{inspect body}")
             user_info = Poison.decode!(body)
             Logger.debug("Parsed token info response: #{inspect user_info}")
 
             {:new, user_info}
-          {:ok, {{_, status, _}, body}} ->
+          {:ok, {{_http_protocol, status, _status_desc}, _headers, body}} ->
             Logger.debug("Token info check returned with status: #{status}: #{inspect body}")
             nil
           {:error, {failure_reason, _}} ->
             Logger.error("Token info check failed. #{inspect failure_reason}")
             nil
         end
-
       rescue e in _ ->
         Logger.error("An error occurred validating the OAuth token: #{inspect e}")
         nil
