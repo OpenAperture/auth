@@ -31,7 +31,7 @@ defmodule OpenAperture.Auth.Server do
   @doc """
   Retrieves a token info body from the server.
   """
-  @spec token_info(String.t, String.t) :: {:new | :cached, Map.t} | nil
+  @spec token_info(String.t, String.t) :: {:new | :cached, Map} | nil
   def token_info(validate_url, token) do
     stored_token = Store.get(validate_url, token)
     if stored_token != nil && Util.valid_token?(stored_token) do
