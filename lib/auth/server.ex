@@ -62,7 +62,7 @@ defmodule OpenAperture.Auth.Server do
     end
   end
 
-  defp stored_and_valid? stored_token do
+  defp stored_and_valid?(stored_token) do
     stored_token != nil && Util.valid_token?(stored_token)
   end
 end
