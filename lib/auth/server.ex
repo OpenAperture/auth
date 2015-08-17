@@ -15,7 +15,7 @@ defmodule OpenAperture.Auth.Server do
     case token_info(validate_url, token) do
       nil -> false
       {:new, user_info} ->
-        if user_info["expires_in_seconds"] == nil || user_info["expires_in_seconds"] <= 0 do
+        if expired?(user_info) do
           Logger.debug("Auth token expired.")
           false
         else
@@ -26,6 +26,10 @@ defmodule OpenAperture.Auth.Server do
       {:cached, _user_info} ->
         true
     end    
+  end
+
+  defp expired?(user_info) do
+    user_info["expires_in_seconds"] == nil || user_info["expires_in_seconds"] <= 0
   end
 
   @doc """
