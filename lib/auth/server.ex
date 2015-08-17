@@ -38,7 +38,7 @@ defmodule OpenAperture.Auth.Server do
   @spec token_info(String.t, String.t) :: {:new | :cached, Map} | nil
   def token_info(validate_url, token) do
     stored_token = Store.get(validate_url, token)
-    if stored_token != nil && Util.valid_token?(stored_token) do
+    if stored_and_valid?(stored_token) do
       {:cached, stored_token.user_info}
     else
       url = "#{validate_url}?#{token}"
@@ -60,5 +60,9 @@ defmodule OpenAperture.Auth.Server do
         nil
       end
     end
+  end
+
+  defp stored_and_valid? stored_token do
+    stored_token != nil && Util.valid_token?(stored_token)
   end
 end
