@@ -28,9 +28,9 @@ defmodule OpenAperture.Auth.Server do
     end    
   end
 
-  defp expired?(user_info) do
-    user_info["expires_in_seconds"] == nil || user_info["expires_in_seconds"] <= 0
-  end
+  defp expired?(%{"expires_in_seconds" => nil}),               do: true
+  defp expired?(%{"expires_in_seconds" => eis}) when eis <= 0, do: true
+  defp expired?(_),                                            do: false
 
   @doc """
   Retrieves a token info body from the server.
@@ -62,7 +62,6 @@ defmodule OpenAperture.Auth.Server do
     end
   end
 
-  defp stored_and_valid?(stored_token) do
-    stored_token != nil && Util.valid_token?(stored_token)
-  end
+  defp stored_and_valid?(nil),          do: false
+  defp stored_and_valid?(stored_token), do: Util.valid_token?(stored_token)
 end
