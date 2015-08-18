@@ -15,7 +15,7 @@ defmodule OpenAperture.Auth.Server do
     case token_info(validate_url, token) do
       nil -> false
       {:new, user_info} ->
-        if user_info["expires_in_seconds"] == nil || user_info["expires_in_seconds"] <= 0 do
+        if expired?(user_info) do
           Logger.debug("Auth token expired.")
           false
         else
@@ -28,13 +28,17 @@ defmodule OpenAperture.Auth.Server do
     end    
   end
 
+  defp expired?(user_info) do
+    user_info["expires_in_seconds"] == nil || user_info["expires_in_seconds"] <= 0
+  end
+
   @doc """
   Retrieves a token info body from the server.
   """
   @spec token_info(String.t, String.t) :: {:new | :cached, Map} | nil
   def token_info(validate_url, token) do
     stored_token = Store.get(validate_url, token)
-    if stored_token != nil && Util.valid_token?(stored_token) do
+    if stored_and_valid?(stored_token) do
       {:cached, stored_token.user_info}
     else
       url = "#{validate_url}?#{token}"
@@ -56,5 +60,9 @@ defmodule OpenAperture.Auth.Server do
         nil
       end
     end
+  end
+
+  defp stored_and_valid?(stored_token) do
+    stored_token != nil && Util.valid_token?(stored_token)
   end
 end
