@@ -27,7 +27,7 @@ defmodule OpenAperture.Auth.Mixfile do
   # Type `mix help deps` for more examples and options
   defp deps do
     [
-      {:ex_doc, "0.7.3", only: :test},
+      {:ex_doc, "0.8.4", only: :test},
       {:earmark, "0.1.17", only: :test},
       {:poison, "~>1.3.1"},
       {:exvcr, "~>0.3.3", only: :test},
