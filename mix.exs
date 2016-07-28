@@ -29,7 +29,7 @@ defmodule OpenAperture.Auth.Mixfile do
     [
       {:ex_doc, "0.8.4", only: :test},
       {:earmark, "0.1.17", only: :test},
-      {:poison, "~>1.3.1"},
+      {:poison, "~>2.0.0"},
       {:exvcr, "~>0.3.3", only: :test},
       {:meck, "0.8.2", only: :test}]
   end
